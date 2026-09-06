@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#3d080e" />
     <title>Dhruv Bhat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Arimo:wght@700&amp;display=swap"
+    />
     <style>
       * {
         box-sizing: border-box;
@@ -16,14 +22,9 @@
 
       body {
         margin: 0;
-        color: #C9A84C;
-        background: radial-gradient(
-          ellipse at 50% 42%,
-          #520c15 0%,
-          #3d080e 60%,
-          #290509 100%
-        );
-        font-family: Arial, sans-serif;
+        color: #C79C5A;
+        background: #3d080e;
+        font-family: "Arimo", Arial, sans-serif;
       }
 
       main {
@@ -42,12 +43,71 @@
         letter-spacing: -0.055em;
         text-align: center;
         text-wrap: balance;
+        animation: title-enter 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+      }
+
+      .back-to-top {
+        position: fixed;
+        right: clamp(1rem, 3vw, 2.5rem);
+        bottom: clamp(1rem, 3vw, 2.5rem);
+        display: grid;
+        width: 44px;
+        height: 44px;
+        place-items: center;
+        color: inherit;
+        border-radius: 50%;
+        text-decoration: none;
+      }
+
+      .back-to-top:hover {
+        background: rgb(199 156 90 / 8%);
+      }
+
+      .back-to-top:focus-visible {
+        outline: 1px solid currentColor;
+        outline-offset: 4px;
+      }
+
+      @keyframes title-enter {
+        from {
+          opacity: 0;
+          filter: blur(14px);
+          transform: scale(0.8);
+        }
+
+        to {
+          opacity: 1;
+          filter: blur(0);
+          transform: scale(1);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        h1 {
+          animation: none;
+        }
       }
     </style>
   </head>
   <body>
-    <main>
+    <main id="top">
       <h1>Dhruv Bhat</h1>
     </main>
+    <a class="back-to-top" href="#top" aria-label="Back to top">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M12 19V5m-6 6 6-6 6 6" />
+      </svg>
+    </a>
   </body>
 </html>
