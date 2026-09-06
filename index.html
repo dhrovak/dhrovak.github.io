@@ -17,22 +17,58 @@
       }
 
       html {
+        --title-enter-duration: 1.2s;
+        --title-enter-delay: 0.12s;
+        --arrow-enter-delay: calc(var(--title-enter-delay) + var(--title-enter-duration));
+        --arrow-enter-duration: 0.4s;
         background: #3d080e;
+        scrollbar-color: #C79C5A #3d080e;
       }
 
       body {
         margin: 0;
-        color: #C79C5A;
-        background: #3d080e;
+        color: #3d080e;
+        background: #C79C5A;
         font-family: "Arimo", Arial, sans-serif;
       }
 
       main {
-        display: grid;
-        min-height: 100vh;
-        min-height: 100svh;
-        padding: 2rem 1rem;
-        place-items: center;
+        min-height: 200vh;
+        min-height: 200svh;
+      }
+
+      .masthead {
+        position: absolute;
+        inset: 0 0 auto;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: var(--masthead-height, 100vh);
+        height: var(--masthead-height, 100svh);
+        padding-inline: 1rem;
+        color: #C79C5A;
+        isolation: isolate;
+        clip-path: inset(-96px 0 -96px);
+      }
+
+      .masthead::before {
+        content: "";
+        position: absolute;
+        inset: -96px -96px 0;
+        z-index: -1;
+        background: #3d080e;
+        filter: blur(var(--edge-blur, 0px));
+        pointer-events: none;
+      }
+
+      .scroll-ready .masthead {
+        position: fixed;
+      }
+
+      .title-position {
+        transform: scale(var(--title-scale, 1));
+        filter: blur(var(--title-blur, 0px));
       }
 
       h1 {
@@ -43,29 +79,29 @@
         letter-spacing: -0.055em;
         text-align: center;
         text-wrap: balance;
-        animation: title-enter 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+        animation: title-enter var(--title-enter-duration) cubic-bezier(0.22, 1, 0.36, 1) var(--title-enter-delay) both;
       }
 
-      .back-to-top {
+      .scroll-cue {
         position: fixed;
+        z-index: 2;
         right: clamp(1rem, 3vw, 2.5rem);
         bottom: clamp(1rem, 3vw, 2.5rem);
         display: grid;
         width: 44px;
         height: 44px;
         place-items: center;
-        color: inherit;
-        border-radius: 50%;
-        text-decoration: none;
+        color: #C79C5A;
+        pointer-events: none;
+        animation: arrow-enter var(--arrow-enter-duration) ease-out var(--arrow-enter-delay) both;
       }
 
-      .back-to-top:hover {
-        background: rgb(199 156 90 / 8%);
+      .scroll-cue[hidden] {
+        display: none;
       }
 
-      .back-to-top:focus-visible {
-        outline: 1px solid currentColor;
-        outline-offset: 4px;
+      .scroll-cue svg {
+        animation: arrow-cue 1s ease-in-out calc(var(--arrow-enter-delay) + var(--arrow-enter-duration)) infinite;
       }
 
       @keyframes title-enter {
@@ -82,8 +118,33 @@
         }
       }
 
+      @keyframes arrow-enter {
+        from {
+          opacity: 0;
+          visibility: hidden;
+        }
+
+        to {
+          opacity: 1;
+          visibility: visible;
+        }
+      }
+
+      @keyframes arrow-cue {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+
       @media (prefers-reduced-motion: reduce) {
-        h1 {
+        h1,
+        .scroll-cue,
+        .scroll-cue svg {
           animation: none;
         }
       }
@@ -91,23 +152,123 @@
   </head>
   <body>
     <main id="top">
-      <h1>Dhruv Bhat</h1>
+      <header class="masthead">
+        <div class="title-position">
+          <h1>Dhruv Bhat</h1>
+        </div>
+      </header>
     </main>
-    <a class="back-to-top" href="#top" aria-label="Back to top">
+    <div class="scroll-cue" aria-hidden="true">
       <svg
         width="20"
         height="20"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="1.5"
+        stroke-width="3"
         stroke-linecap="round"
         stroke-linejoin="round"
         aria-hidden="true"
         focusable="false"
       >
-        <path d="M12 19V5m-6 6 6-6 6 6" />
+        <path d="m6 15 6-6 6 6" />
       </svg>
-    </a>
+    </div>
+    <script>
+      (() => {
+        const masthead = document.querySelector(".masthead");
+        const title = document.querySelector("h1");
+        const cue = document.querySelector(".scroll-cue");
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+        let viewportHeight = 0;
+        let barHeight = 0;
+        let compactScale = 1;
+        let framePending = false;
+        let needsMeasure = true;
+        let progress = 0;
+        let lastTarget = null;
+        let transition = null;
+        const transitionDuration = 760;
+
+        function render(now = performance.now()) {
+          framePending = false;
+
+          if (needsMeasure) {
+            const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+            const titleSize = parseFloat(getComputedStyle(title).fontSize);
+            const compactSize = Math.min(titleSize, Math.max(1.75 * rem, Math.min(window.innerWidth * 0.04, 3 * rem)));
+            viewportHeight = window.innerHeight;
+            compactScale = compactSize / titleSize;
+            barHeight = Math.min(viewportHeight, title.offsetHeight * compactScale + 3 * rem);
+            needsMeasure = false;
+          }
+
+          const scroll = Math.max(0, window.scrollY);
+          // Native scrolling triggers a complete transition, not a scrubbable one.
+          // Wheel, touch, and keyboard input remain free of scroll interception.
+          const target = scroll > 0 ? 1 : 0;
+
+          if (lastTarget === null) {
+            // Restore a scrolled page without replaying the collapse.
+            progress = target;
+          } else if (target !== lastTarget) {
+            transition = {
+              from: progress,
+              to: target,
+              start: now,
+              duration: transitionDuration * Math.max(0.3, Math.abs(target - progress)),
+            };
+          }
+          lastTarget = target;
+
+          if (reducedMotion.matches) {
+            progress = target;
+            transition = null;
+          } else if (transition) {
+            const elapsed = Math.min(1, (now - transition.start) / transition.duration);
+            const eased = elapsed < 0.5
+              ? 4 * elapsed ** 3
+              : 1 - (-2 * elapsed + 2) ** 3 / 2;
+            progress = transition.from + (transition.to - transition.from) * eased;
+
+            if (elapsed === 1) {
+              progress = transition.to;
+              transition = null;
+            }
+          }
+
+          // Soften the moving boundary only; both resting states stay crisp.
+          const blur = transition ? Math.sin(Math.PI * progress) : 0;
+
+          masthead.style.setProperty("--masthead-height", `${viewportHeight + (barHeight - viewportHeight) * progress}px`);
+          masthead.style.setProperty("--title-scale", 1 + (compactScale - 1) * progress);
+          masthead.style.setProperty("--edge-blur", `${blur * 28}px`);
+          masthead.style.setProperty("--title-blur", `${blur * 4}px`);
+          cue.hidden = scroll > 0 || progress > 0;
+
+          if (transition) scheduleRender();
+        }
+
+        function scheduleRender() {
+          if (!framePending) {
+            framePending = true;
+            window.requestAnimationFrame(render);
+          }
+        }
+
+        function measure() {
+          needsMeasure = true;
+          scheduleRender();
+        }
+
+        window.addEventListener("scroll", scheduleRender, { passive: true });
+        window.addEventListener("resize", measure);
+        window.addEventListener("pageshow", measure);
+        reducedMotion.addEventListener("change", scheduleRender);
+        document.fonts.ready.then(measure);
+        document.documentElement.classList.add("scroll-ready");
+        render();
+      })();
+    </script>
   </body>
 </html>
