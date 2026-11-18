@@ -1,0 +1,50 @@
+{
+  "projects": [
+    {
+      "name": "ClearWay",
+      "description": null,
+      "url": "https://github.com/dhrovak/ClearWay",
+      "homepage": null,
+      "language": "Kotlin",
+      "stars": 0,
+      "pushedAt": "2024-11-14T04:41:12Z"
+    },
+    {
+      "name": "differ",
+      "description": "differ is a robot created using Gazebo tools to be used in an indoor environment",
+      "url": "https://github.com/dhrovak/differ",
+      "homepage": null,
+      "language": null,
+      "stars": 0,
+      "pushedAt": "2024-04-23T13:57:19Z"
+    },
+    {
+      "name": "YouStore",
+      "description": "A web app which stores files on the cloud using Youtube API.",
+      "url": "https://github.com/dhrovak/YouStore",
+      "homepage": null,
+      "language": "Java",
+      "stars": 0,
+      "pushedAt": "2024-04-17T09:35:35Z"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Kotlin",
+      "pct": 40.6
+    },
+    {
+      "name": "Java",
+      "pct": 37.8
+    },
+    {
+      "name": "Python",
+      "pct": 13.2
+    },
+    {
+      "name": "HTML",
+      "pct": 8.4
+    }
+  ],
+  "fetchedAt": "2026-11-18T07:10:28.152Z"
+}

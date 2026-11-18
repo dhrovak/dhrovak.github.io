@@ -1,0 +1,290 @@
+:root {
+  --bg: #000;
+  --fg: #e8dcc4;
+  --muted: #a89f8c;
+  --rule: #2a2620;
+  --track: #17150f;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 1rem/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+ol,
+ul {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--muted);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-color: var(--fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--fg);
+  color: var(--bg);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip:focus {
+  transform: none;
+}
+
+.wrap {
+  max-width: 42rem;
+  margin-inline: auto;
+  padding: clamp(3.5rem, 12vw, 8rem) 1.25rem 4rem;
+}
+
+.mono,
+.meta {
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* Hero */
+.hero h1 {
+  font-size: clamp(2.75rem, 11vw, 5rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.hero p {
+  margin-top: 1rem;
+  font-size: clamp(1.125rem, 3.5vw, 1.375rem);
+  color: var(--muted);
+}
+
+.hero nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-top: 2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.hero nav a {
+  text-decoration: none;
+}
+
+.hero nav a:hover {
+  text-decoration: underline;
+}
+
+/* Sections */
+section,
+.contact {
+  margin-top: clamp(3.5rem, 10vw, 5.5rem);
+}
+
+h2 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  font: 400 0.8125rem/1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h2::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--rule);
+}
+
+h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+}
+
+/* Experience */
+.role + .role {
+  margin-top: 2.5rem;
+}
+
+.role ul {
+  margin-top: 0.75rem;
+  padding-left: 1.1rem;
+}
+
+.role li + li {
+  margin-top: 0.4rem;
+}
+
+.role li::marker {
+  color: var(--muted);
+}
+
+/* Projects */
+.list {
+  padding: 0;
+  list-style: none;
+}
+
+.projects li + li {
+  margin-top: 1.75rem;
+}
+
+.projects p {
+  margin-top: 0.3rem;
+}
+
+.projects .meta {
+  margin-top: 0.4rem;
+}
+
+/* Skills */
+.skills li {
+  display: grid;
+  grid-template-columns: minmax(6rem, 10rem) 1fr 3.5rem;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 0.4rem;
+}
+
+.bar {
+  height: 2px;
+  background: linear-gradient(var(--fg) 0 0) no-repeat 0 0 / var(--w, 0%) 100%, var(--track);
+}
+
+.skills .meta {
+  text-align: right;
+}
+
+/* Contact */
+.contact ul {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.contact li {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.empty {
+  color: var(--muted);
+}
+
+@media print {
+  :root {
+    --bg: #fff;
+    --fg: #000;
+    --muted: #444;
+    --rule: #ccc;
+    color-scheme: light;
+  }
+
+  body {
+    font-size: 10.5pt;
+  }
+
+  .wrap {
+    max-width: none;
+    padding: 0;
+  }
+
+  .skip,
+  .hero nav,
+  .bar {
+    display: none;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  main a[href^="http"]::after,
+  .contact a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font: 0.8em var(--mono);
+    color: var(--muted);
+    word-break: break-all;
+  }
+
+  section,
+  .contact {
+    margin-top: 1.75rem;
+  }
+
+  h2 {
+    margin-bottom: 0.75rem;
+    break-after: avoid;
+  }
+
+  .role,
+  .projects li,
+  .skills li {
+    break-inside: avoid;
+  }
+
+  .skills li {
+    grid-template-columns: 10rem auto;
+    padding-block: 0.1rem;
+  }
+
+  .skills .meta {
+    text-align: left;
+  }
+}

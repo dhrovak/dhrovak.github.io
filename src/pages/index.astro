@@ -1,0 +1,128 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../content/site";
+import { getGitHubData } from "../lib/github";
+
+const { projects, skills } = await getGitHubData();
+const topPct = skills[0]?.pct ?? 0;
+const projectMeta = (p: (typeof projects)[number]) =>
+  [p.language, p.stars > 0 ? `★ ${p.stars}` : null].filter(Boolean).join(" · ");
+
+// Only static site.ts data goes in here; "<" is escaped so the JSON can't close the script element.
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  url: site.url,
+  email: site.email,
+  jobTitle: site.jobTitle,
+  worksFor: site.experience[0] ? { "@type": "Organization", name: site.experience[0].company } : undefined,
+  sameAs: site.contacts.filter((c) => c.href.startsWith("https://")).map((c) => c.href),
+}).replace(/</g, "\\u003c");
+---
+
+<Base title={`${site.name} · ${site.jobTitle}`} description={site.description} path="/">
+  <script is:inline slot="head" type="application/ld+json" set:html={jsonLd} />
+
+  <header class="hero">
+    <h1>{site.name}</h1>
+    <p>{site.tagline}</p>
+    <nav aria-label="Sections">
+      <ul class="mono">
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section id="projects" aria-labelledby="projects-h">
+      <h2 id="projects-h">Projects</h2>
+      {
+        projects.length ? (
+          <ol class="list projects">
+            {projects.map((p) => (
+              <li>
+                <div class="row">
+                  <h3>
+                    <a href={p.url}>{p.name}</a>
+                  </h3>
+                  {p.homepage && (
+                    <a class="mono" href={p.homepage}>
+                      Live
+                    </a>
+                  )}
+                </div>
+                {p.description && <p>{p.description}</p>}
+                {projectMeta(p) && <p class="meta">{projectMeta(p)}</p>}
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="empty">
+            Nothing public yet — see <a href={`https://github.com/${site.githubUser}`}>GitHub</a>.
+          </p>
+        )
+      }
+    </section>
+
+    <section id="experience" aria-labelledby="experience-h">
+      <h2 id="experience-h">Experience</h2>
+      {
+        site.experience.map((role) => (
+          <article class="role">
+            <div class="row">
+              <h3>
+                {role.title} · {role.company}
+              </h3>
+              <span class="meta">
+                {role.start} – {role.end}
+              </span>
+            </div>
+            <p class="meta">{role.location}</p>
+            <ul>
+              {role.points.map((point) => (
+                <li>{point}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+    </section>
+
+    {
+      skills.length > 0 && (
+        <section id="skills" aria-labelledby="skills-h">
+          <h2 id="skills-h">Skills</h2>
+          <ol class="list skills">
+            {skills.map((s) => (
+              <li>
+                <span>{s.name}</span>
+                <span class="bar" style={`--w:${topPct ? Math.round((s.pct / topPct) * 100) : 0}%`} aria-hidden="true" />
+                <span class="meta">{s.pct}%</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+  </main>
+
+  <footer id="contact" class="contact" aria-labelledby="contact-h">
+    <h2 id="contact-h">Contact</h2>
+    <ul class="list">
+      {
+        site.contacts.map((c) => (
+          <li>
+            <span class="meta">{c.label}</span>
+            <a href={c.href} rel={c.href.startsWith("https://") ? "me" : undefined}>
+              {c.text}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </footer>
+</Base>
